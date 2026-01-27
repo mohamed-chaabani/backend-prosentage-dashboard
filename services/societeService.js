@@ -29,6 +29,9 @@ const societeService = {
   },
 
   update: async (id, data) => {
+
+    console.log("data", data);
+
     const updateData = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.link !== undefined) updateData.link = data.link;
