@@ -30,8 +30,8 @@ const societeService = {
 
   update: async (id, data) => {
 
-    console.log("data", data);
-
+    
+    
     const updateData = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.link !== undefined) updateData.link = data.link;
@@ -48,6 +48,23 @@ const societeService = {
       throw new Error("Societe not found");
     }
 
+    // If active flag was part of the update and a link exists, notify external backend
+    if (data.active !== undefined && societe.link) {
+      const url = `${societe.link.replace(/\/+$/, "")}/api/platform-active`;
+      try {
+        await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ active: !!societe.active }),
+        });
+      } catch (err) {
+        console.warn(
+          "Failed to PATCH platform-active at",
+          url,
+          err?.message || err,
+        );
+      }
+    }
     return societe;
   },
 
@@ -59,6 +76,23 @@ const societeService = {
     );
     if (!societe) {
       throw new Error("Societe not found");
+    }
+    // Notify external backend if link exists
+    if (societe.link) {
+      const url = `${societe.link.replace(/\/+$/, "")}/api/platform-active`;
+      try {
+        await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ active: !!societe.active }),
+        });
+      } catch (err) {
+        console.warn(
+          "Failed to PATCH platform-active at",
+          url,
+          err?.message || err,
+        );
+      }
     }
     return societe;
   },
